@@ -1,9 +1,11 @@
-package HuffManager.codecs.huffman;
+package huffManager.codecs.huffman;
 
-import HuffManager.codecs.*;
+import huffManager.codecs.*;
 
 /**
- * Created by jeysym on 23.5.16.
+ * The Huffman coding codec class, which is used to get coder/decoder for encoding/decoding data streams
+ * with the Huffman coding.
+ * @author Jan Bryda
  */
 public class HuffmanCodec extends Codec {
 

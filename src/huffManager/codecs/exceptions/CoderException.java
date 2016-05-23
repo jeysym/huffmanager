@@ -1,4 +1,4 @@
-package HuffManager.codecs.exceptions;
+package huffManager.codecs.exceptions;
 
 /**
  * Created by jeysym on 23.5.16.

@@ -1,6 +1,6 @@
-package HuffManager.codecs;
+package huffManager.codecs;
 
-import HuffManager.codecs.exceptions.DecoderException;
+import huffManager.codecs.exceptions.DecoderException;
 
 import java.io.*;
 

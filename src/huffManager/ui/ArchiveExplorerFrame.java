@@ -1,6 +1,5 @@
-package HuffManager.ui;
+package huffManager.ui;
 import javax.swing.*;
-import java.io.File;
 
 /**
  * The class that represents the main window of the program, which is used to create/browse/modify the archive

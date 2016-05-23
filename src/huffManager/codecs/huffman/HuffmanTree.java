@@ -1,4 +1,4 @@
-package HuffManager.codecs.huffman;
+package huffManager.codecs.huffman;
 
 /**
  * Created by jeysym on 23.5.16.

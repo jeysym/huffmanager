@@ -1,7 +1,7 @@
-package HuffManager.codecs.huffman;
+package huffManager.codecs.huffman;
 
-import HuffManager.codecs.*;
-import HuffManager.codecs.exceptions.*;
+import huffManager.codecs.*;
+import huffManager.codecs.exceptions.*;
 
 import java.io.*;
 import java.util.PriorityQueue;
@@ -11,7 +11,7 @@ import java.util.Comparator;
  * Created by jeysym on 23.5.16.
  */
 public class HuffmanCoder extends Coder {
-    private int blockSize = 1024 * 1024;
+    private int blockSize = 100 * 1024 * 1024;
 
     class HuffmanCodingThread extends Thread {
         InputStream input;
@@ -94,6 +94,9 @@ public class HuffmanCoder extends Coder {
             if (input.available() == 0)
                 throw new CoderException("Huffman Coder : input stream is empty!");
 
+            if (input.markSupported() == false)
+                input = new BufferedInputStream(input, blockSize);
+            input.mark(100);
             HuffmanTree huffmanTree = constructHuffmanTree(input);
             input.reset();
 
@@ -173,7 +176,7 @@ enum Bit {
 }
 
 class BitCode {
-    public Bit[] bits;
+    public Bit[] bits = new Bit[0];
 
     public BitCode add(Bit bit) {
         BitCode newBitCode = new BitCode();

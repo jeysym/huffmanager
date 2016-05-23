@@ -1,4 +1,4 @@
-package HuffManager.ui;
+package huffManager.ui;
 
 import javax.swing.*;
 
