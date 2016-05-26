@@ -2,6 +2,7 @@ package huffManager.codecs.huffman;
 
 import huffManager.codecs.*;
 import huffManager.codecs.exceptions.*;
+import huffManager.generator.*;
 
 import java.util.Stack;
 import java.lang.Thread;
@@ -58,8 +59,9 @@ public class HuffmanDecoder extends Decoder {
         }
     }
 
-    public InputStream decode(InputStream input) throws DecoderException {
+    public InputStream decode(Generator<InputStream> inputGenerator) throws DecoderException {
         try {
+            InputStream input = inputGenerator.generate();
             HuffmanTree huffmanTree = readHuffmanTree(input);
 
             PipedOutputStream pipedOutputStream = new PipedOutputStream();
@@ -68,7 +70,9 @@ public class HuffmanDecoder extends Decoder {
             decodingThread.start();
             return pipedInputStream;
         } catch (IOException e) {
-            throw new DecoderException("Huffman decoder : an IO exception occurred!");
+            throw new DecoderException("Huffman Decoder : an IO exception occurred!", e);
+        } catch (UnableToGenerateException e) {
+            throw new DecoderException("Huffman Decoder : unable to generate stream!", e);
         }
     }
 

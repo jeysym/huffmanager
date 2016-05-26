@@ -2,6 +2,7 @@ package huffManager.codecs.huffman;
 
 import huffManager.codecs.*;
 import huffManager.codecs.exceptions.*;
+import huffManager.generator.*;
 
 import java.io.*;
 import java.util.PriorityQueue;
@@ -13,13 +14,13 @@ import java.util.Comparator;
 public class HuffmanCoder extends Coder {
     private int blockSize = 100 * 1024 * 1024;
 
-    class HuffmanCodingThread extends Thread {
+    private class HuffmanCodingThread extends Thread {
         InputStream input;
         PipedOutputStream output;
         HuffmanTree huffmanTree;
         boolean success;
 
-        public HuffmanCodingThread(HuffmanTree huffmanTree, InputStream input, PipedOutputStream output) {
+        HuffmanCodingThread(HuffmanTree huffmanTree, InputStream input, PipedOutputStream output) {
             this.input = new BufferedInputStream(input, blockSize);
             this.output = output;
             this.huffmanTree = huffmanTree;
@@ -89,24 +90,31 @@ public class HuffmanCoder extends Coder {
         }
     }
 
-    public InputStream code(InputStream input) throws CoderException {
+    public InputStream code(Generator<InputStream> inputGenerator) throws CoderException {
         try {
-            if (input.available() == 0)
-                throw new CoderException("Huffman Coder : input stream is empty!");
+            InputStream input = inputGenerator.generate();
+            HuffmanTree huffmanTree;
 
-            if (input.markSupported() == false)
-                input = new BufferedInputStream(input, blockSize);
-            input.mark(100);
-            HuffmanTree huffmanTree = constructHuffmanTree(input);
-            input.reset();
+            try {
+                if (input.available() == 0)
+                    throw new CoderException("Huffman Coder : input stream is empty!");
 
+                huffmanTree = constructHuffmanTree(input);
+            } finally {
+                input.close();
+            }
+
+
+            input = inputGenerator.generate();
             PipedInputStream pipeIn = new PipedInputStream(blockSize);
             PipedOutputStream pipeOut = new PipedOutputStream(pipeIn);
             HuffmanCodingThread codingThread = new HuffmanCodingThread(huffmanTree, input, pipeOut);
             codingThread.start();
             return pipeIn;
         } catch (IOException e) {
-            throw new CoderException("Huffman Coder : an IO exception occurred!");
+            throw new CoderException("Huffman Coder : an IO exception occurred!", e);
+        } catch (UnableToGenerateException e) {
+            throw new CoderException("Huffman Coder : unable to generate stream!", e);
         }
     }
 

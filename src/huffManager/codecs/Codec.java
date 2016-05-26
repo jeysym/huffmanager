@@ -1,13 +1,20 @@
 package huffManager.codecs;
 
+import huffManager.codecs.exceptions.UnknownCodecException;
+import huffManager.codecs.huffman.HuffmanCodec;
+import huffManager.codecs.none.NoneCodec;
+
+import java.util.Map;
+import java.util.HashMap;
+
 /**
  * Created by jeysym on 23.5.16.
  */
 public abstract class Codec {
-    private int id;
+    private long id;
     private String codecName;
 
-    public Codec(int id, String codecName) {
+    public Codec(long id, String codecName) {
         this.id = id;
         this.codecName = codecName;
     }
@@ -16,11 +23,12 @@ public abstract class Codec {
 
     public abstract Decoder getDecoder();
 
-    public int getID() {
+    public long getID() {
         return id;
     }
 
     public String getCodecName() {
         return codecName;
     }
+
 }
