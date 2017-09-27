@@ -6,8 +6,19 @@ import huffManager.generator.*;
 import java.io.*;
 
 /**
- * Created by jeysym on 23.5.16.
+ * Decoder class provides the ability to decode given {@link InputStream}.
+ * @author Jan Bryda
  */
 public abstract class Decoder {
-    public abstract InputStream decode(Generator<InputStream> input) throws DecoderException;
+
+    /**
+     * Takes {@link Generator} of {@link InputStream} and returns stream of decoded data, from which decoded
+     * data can be read. {@link Generator} is used instead of just {@link InputStream}, because some codecs
+     * may require to read input stream multiple times to decode it properly, and generator provides the way
+     * to do so.
+     * @param inputGenerator generator of input stream
+     * @return decoded stream
+     * @throws DecoderException
+     */
+    public abstract InputStream decode(Generator<InputStream> inputGenerator) throws DecoderException;
 }

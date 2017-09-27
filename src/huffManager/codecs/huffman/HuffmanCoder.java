@@ -9,23 +9,41 @@ import java.util.PriorityQueue;
 import java.util.Comparator;
 
 /**
- * Created by jeysym on 23.5.16.
+ * This class provides access to coding data streams with Huffman coding.
+ * @author Jan Bryda
  */
 public class HuffmanCoder extends Coder {
-    private int blockSize = 100 * 1024 * 1024;
+    private int blockSize = 10 * 1024 * 1024;
 
+    /**
+     * Thread that takes the input stream codes it using the huffman tree and writes the output to the
+     * piped output stream.
+     */
     private class HuffmanCodingThread extends Thread {
         InputStream input;
         PipedOutputStream output;
         HuffmanTree huffmanTree;
         boolean success;
 
+        /**
+         * Creates new HuffmanCodingThread that takes the input stream codes it according to the huffman
+         * tree and writes the codec data into piped output stream.
+         * @param huffmanTree huffman tree used to code data
+         * @param input input to code
+         * @param output output, into which coded data are written
+         */
         HuffmanCodingThread(HuffmanTree huffmanTree, InputStream input, PipedOutputStream output) {
             this.input = new BufferedInputStream(input, blockSize);
             this.output = output;
             this.huffmanTree = huffmanTree;
         }
 
+        /**
+         * Gets the bit codes for each byte value. It uses the method
+         * {@link HuffmanCodingThread#getCodes(HuffmanTree, BitCode, BitCode[])} to do so.
+         * @param huffmanTree huffman tree
+         * @return bit codes
+         */
         private BitCode[] getCodes(HuffmanTree huffmanTree) {
             BitCode code = new BitCode();
             BitCode[] result = new BitCode[256];
@@ -42,6 +60,11 @@ public class HuffmanCoder extends Coder {
             }
         }
 
+        /**
+         * Codes the huffman tree into an array of longs.
+         * @param huffmanTree huffman tree to code
+         * @return coded tree
+         */
         private long[] codeHuffmanTree(HuffmanTree huffmanTree) {
             if (huffmanTree.isLeaf())
                 return new long[]{codeHuffmanLeaf(huffmanTree)};
@@ -57,12 +80,17 @@ public class HuffmanCoder extends Coder {
             return result;
         }
 
+        /**
+         * Codes one leaf node of a huffman tree into long.
+         * @param leaf leaf node to code
+         * @return long representation of leaf node
+         */
         private long codeHuffmanLeaf(HuffmanTree leaf) {
             long result;
 
             // gets the lower 55 bits of the frequency value
             long frequencyLower = leaf.frequency & 0x007FFFFFFFFFFFFFL;
-            byte byteValue = leaf.byteValue;
+            int byteValue = leaf.byteValue;
             result = 0x8000000000000000L | frequencyLower << 8 | byteValue;
             return result;
         }
@@ -90,10 +118,11 @@ public class HuffmanCoder extends Coder {
         }
     }
 
+    @Override
     public InputStream code(Generator<InputStream> inputGenerator) throws CoderException {
         try {
             InputStream input = inputGenerator.generate();
-            HuffmanTree huffmanTree;
+            HuffmanTree huffmanTree = null;
 
             try {
                 if (input.available() == 0)
@@ -118,6 +147,12 @@ public class HuffmanCoder extends Coder {
         }
     }
 
+    /**
+     * Takes the input stream and constructs appropriate huffman tree.
+     * @param input input stream
+     * @return huffman tree for this input stream
+     * @throws IOException
+     */
     private HuffmanTree constructHuffmanTree(InputStream input) throws IOException {
         Comparator<HuffmanTree> huffmanTreeComparator = new Comparator<HuffmanTree>() {
             @Override
@@ -128,7 +163,7 @@ public class HuffmanCoder extends Coder {
 
                 if (tree1.isLeaf()) {
                     if (tree2.isLeaf())
-                        return Byte.compare(tree1.byteValue, tree2.byteValue);
+                        return Integer.compare(tree1.byteValue, tree2.byteValue);
                     else
                         return -1;
                 } else {
@@ -142,7 +177,7 @@ public class HuffmanCoder extends Coder {
 
         for (int i = 0; i < frequencies.length; i++)
             if (frequencies[i] != 0)
-                trees.add(new HuffmanTree((byte) i, frequencies[i]));
+                trees.add(new HuffmanTree(i, frequencies[i]));
 
         while (trees.size() != 1) {
             HuffmanTree tree1 = trees.remove();
@@ -155,22 +190,35 @@ public class HuffmanCoder extends Coder {
         return trees.remove();
     }
 
+    /**
+     * Gets the byte frequencies table for this input.
+     * @param input input stream
+     * @return frequencies table
+     * @throws IOException
+     */
     private long[] getFrequenciesTable(InputStream input) throws IOException {
         BufferedInputStream bInput = new BufferedInputStream(input, blockSize);
         long[] frequencies = new long[256];
 
         int b;
         while ((b = bInput.read()) != -1) {
-            frequencies[(byte) b]++;
+            frequencies[b & 0xFF]++;
         }
 
         return frequencies;
     }
 }
 
+/**
+ * Enum describing bit values. Possible values are: {@link Bit#High} and {@link Bit#Low}.
+ */
 enum Bit {
     High, Low;
 
+    /**
+     * Gets the byte value of bit. High = 1. Low = 0.
+     * @return byte value representing bit
+     */
     public byte getValue() {
         switch (this) {
             case High:
@@ -178,14 +226,21 @@ enum Bit {
             case Low:
                 return 0;
         }
-        assert (false);
         return 0;
     }
 }
 
+/**
+ * Represents the bit code that is used to code one byte value.
+ */
 class BitCode {
     public Bit[] bits = new Bit[0];
 
+    /**
+     * Extends the bit code with another specified bit.
+     * @param bit
+     * @return extended bit code
+     */
     public BitCode add(Bit bit) {
         BitCode newBitCode = new BitCode();
         newBitCode.bits = new Bit[bits.length + 1];
@@ -195,6 +250,9 @@ class BitCode {
     }
 }
 
+/**
+ * Output stream that gives the ability to write bit by bit.
+ */
 class BitDataOutputStream extends DataOutputStream {
     byte[] buffer = new byte[8];
     int bufferLength = 0;
@@ -203,6 +261,11 @@ class BitDataOutputStream extends DataOutputStream {
         super(out);
     }
 
+    /**
+     * Writes bit to output.
+     * @param bit bit to write
+     * @throws IOException
+     */
     public void writeBit(Bit bit) throws IOException {
         buffer[bufferLength++] = bit.getValue();
 
@@ -210,6 +273,10 @@ class BitDataOutputStream extends DataOutputStream {
             flushBuffer();
     }
 
+    /**
+     * Writes the byte that is constructed from bits that are stored in the bit buffer.
+     * @throws IOException
+     */
     public void flushBuffer() throws IOException {
         byte aByte = 0;
         for (int i = 0; i < 8; i++) {
@@ -219,6 +286,10 @@ class BitDataOutputStream extends DataOutputStream {
         bufferLength = 0;
     }
 
+    /**
+     * Closes the stream and if the last byte is unfinished it is augmented with zeroes and written out.
+     * @throws IOException
+     */
     public void close() throws IOException {
         while (bufferLength > 1 && bufferLength < 8)
             buffer[bufferLength++] = 0;

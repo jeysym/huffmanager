@@ -6,8 +6,19 @@ import huffManager.generator.*;
 import java.io.*;
 
 /**
- * Created by jeysym on 23.5.16.
+ * Coder class provides the ability to code given {@link InputStream}.
+ * @author Jan Bryda
  */
 public abstract class Coder {
-    public abstract InputStream code(Generator<InputStream> input) throws CoderException;
+
+    /**
+     * Takes {@link Generator} that generates {@link InputStream} and returns coded stream from which
+     * coded data can be read. {@link Generator} is passed instead of regular {@link InputStream}, because
+     * many coding algorithms need to read input stream multiple times, and generator provides the way to do
+     * so.
+     * @param inputGenerator generator of input stream
+     * @return coded data stream
+     * @throws CoderException
+     */
+    public abstract InputStream code(Generator<InputStream> inputGenerator) throws CoderException;
 }

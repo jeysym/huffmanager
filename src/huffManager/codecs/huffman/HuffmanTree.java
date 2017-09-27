@@ -1,7 +1,8 @@
 package huffManager.codecs.huffman;
 
 /**
- * Created by jeysym on 23.5.16.
+ * This class represents the Huffman tree, that captures separate bytes in file and their frequencies.
+ * @author Jan Bryda
  */
 public class HuffmanTree {
     static long currentTime = 0;
@@ -10,14 +11,26 @@ public class HuffmanTree {
     public HuffmanTree right;
 
     public long timeCreated;
-    public Byte byteValue;
+    public Integer byteValue;
     public long frequency;
 
-    public HuffmanTree(Byte byteValue, long frequency) {
+    /**
+     * Creates the new huffman tree leaf node with specified byte value and frequency.
+     * @param byteValue byte value
+     * @param frequency the frequency of that byte value
+     */
+    public HuffmanTree(Integer byteValue, long frequency) {
         this(null, byteValue, frequency, null);
     }
 
-    public HuffmanTree(HuffmanTree left, Byte byteValue, long frequency, HuffmanTree right) {
+    /**
+     * Crates new huffman tree with specified son trees and the byte value and frequency in the root node.
+     * @param left left son
+     * @param byteValue byte value
+     * @param frequency frequency of that byte value
+     * @param right right son
+     */
+    public HuffmanTree(HuffmanTree left, Integer byteValue, long frequency, HuffmanTree right) {
         this.left = left;
         this.timeCreated = currentTime++;
         this.byteValue = byteValue;
@@ -25,6 +38,10 @@ public class HuffmanTree {
         this.right = right;
     }
 
+    /**
+     * Returns true if this huffman tree is leaf node.
+     * @return true / false
+     */
     public boolean isLeaf() {
         return (byteValue != null);
     }

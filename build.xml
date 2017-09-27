@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<project name="HuffManager" default="info">
+    <property name="src.dir" value="src"/>
+    <property name="out.dir" value="out"/>
+    <property name="src.dir" value="src"/>
+    <property name="doc.dir" value="doc"/>
+    <property name="cp.dir" value="out"/>
+
+    <fileset dir="${src}" casesensitive="yes">
+       <include name="src/**/*.java"/>
+    </fileset>
+
+    <target name="run" description="Runs the application" depends="build">
+        <java fork="true" failonerror="yes" classname="huffManager.Program" classpath="${cp.dir}" />
+    </target>
+
+    <target name="build" description="Compile source tree java files">
+       <mkdir dir="${out.dir}"/>
+       <javac destdir="${out.dir}" source="1.8" target="1.8" classpath="${cp.dir}">
+            <src path="${src.dir}"/>
+       </javac>
+    </target>
+   
+    <target name="generate-javadoc">
+        <javadoc packagenames="huffManager.*" sourcepath="${src.dir}" destdir = "${doc.dir}" version = "true" windowtitle = "HuffManager"
+                 overview="overview.html" access="private">
+            <doctitle><![CDATA[= HuffManager =]]></doctitle>
+            <group title = "archive packages" packages = "huffManager.archive,huffManager.archive.*"/>
+            <group title = "codecs packages" packages = "huffManager.codecs,huffManager.codecs.*"/>
+            <group title = "ui packages" packages = "huffManager.ui,huffManager.ui.*"/>
+       </javadoc>
+    </target>
+
+    <target name="clean" description="Clean output directories">
+        <delete dir="${doc.dir}" />
+        <delete dir="${out.dir}" />
+    </target>
+
+</project>

@@ -1,7 +1,8 @@
 package huffManager.codecs.exceptions;
 
 /**
- * Created by jeysym on 23.5.16.
+ * This exception should be thrown when Coder can't encode input stream.
+ * @author Jan Bryda
  */
 public class CoderException extends Exception {
     public CoderException(String message) {

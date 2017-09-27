@@ -11,17 +11,27 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Created by jeysym on 23.5.16.
+ * Class that allows decoding the stream of huffman coded data.
+ * @author Jan Bryda
  */
 public class HuffmanDecoder extends Decoder {
-    private int blockSize = 100 * 1024 * 1024;
+    private int blockSize = 10 * 1024 * 1024;
 
+    /**
+     * Thread that reads the coded data from the input and puts decoded data into piped output stream.
+     */
     private class HuffmanDecodingThread extends Thread {
         InputStream input;
         PipedOutputStream output;
         HuffmanTree huffmanTree;
         HuffmanTree positionInTree;
 
+        /**
+         * Crates new HuffmanDecodingThread.
+         * @param huffmanTree huffman tree to be used while decoding
+         * @param input input of coded data
+         * @param output piped output stream to which decoded data will be put
+         */
         public HuffmanDecodingThread(HuffmanTree huffmanTree, InputStream input, PipedOutputStream output) {
             this.huffmanTree = huffmanTree;
             this.input = input;
@@ -59,6 +69,7 @@ public class HuffmanDecoder extends Decoder {
         }
     }
 
+    @Override
     public InputStream decode(Generator<InputStream> inputGenerator) throws DecoderException {
         try {
             InputStream input = inputGenerator.generate();
@@ -76,6 +87,13 @@ public class HuffmanDecoder extends Decoder {
         }
     }
 
+    /**
+     * Reads the huffman tree from the input stream.
+     * @param input input stream
+     * @return read huffman tree
+     * @throws IOException
+     * @throws DecoderException
+     */
     private HuffmanTree readHuffmanTree(InputStream input) throws IOException, DecoderException {
         DataInputStream dataInputStream = new DataInputStream(input);
         List<Long> nodes = new ArrayList<Long>(256);
@@ -111,13 +129,21 @@ public class HuffmanDecoder extends Decoder {
         return trees.pop();
     }
 
+    /**
+     * Reads the leaf node of huffman tree from the long value.
+     * @param longValue value that represents the leaf node of huffman tree
+     * @return loaf of huffman tree
+     */
     private HuffmanTree readLeaf(long longValue) {
         long frequency = (longValue >>> 8) & 0x007FFFFFFFFFFFFFL;
-        byte byteValue = (byte) longValue;
+        int byteValue = (int)(longValue & 0xFFL);
         return new HuffmanTree(byteValue, frequency);
     }
 }
 
+/**
+ * Stream that allows reading bit by bit.
+ */
 class BitDataInputStream extends DataInputStream {
     byte readByte;
     int position = 8;
@@ -126,6 +152,11 @@ class BitDataInputStream extends DataInputStream {
         super(input);
     }
 
+    /**
+     * Reads on bit. Either 0 or 1.
+     * @return either 0 or 1
+     * @throws IOException
+     */
     int readBit() throws IOException {
         if (position == 8) {
             int x = read();

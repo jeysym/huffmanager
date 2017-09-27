@@ -1,0 +1,18 @@
+<html>
+<head> </head>
+<body>
+HuffManager is Java project that provides basic GUI application for working with archives. Archive has its root directory that can contain other 
+directories and files. Files in archive are coded by codecs, which describe the general way how to code/decode streams of data. 
+<p>
+In this program 
+there are two codecs implemented. One is Huffman codec, which is based on the Huffman coding 
+<a href="https://en.wikipedia.org/wiki/Huffman_coding">(more)</a>
+, which codes streams of data by creating appropriate Huffman trees for them. The other codec is None codec, which does not code or decode data 
+at all, it just works with streams of raw data, so it is a codec representation of not using a coder/decoder. 
+<p>
+Although these are the only implemented 
+codecs, this application provides an easy way to add new codecs. New codec just has to extend the abstract class Codec. Providing access to
+their Coder / Decoder classes that describe the coding / decoding process. The new codec should alse be registered in Codecs class that keeps track
+of all known codecs. Once the new codec is added to the known codecs, it can be used in the GUI application to encode files in archive.
+</body>
+</html>
