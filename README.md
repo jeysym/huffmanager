@@ -2,6 +2,8 @@ HuffManager
 ===========
 HuffManager is Java application that can make archive (of its own binary format) containing several files. These files can also be compressed. Huffman coding is implemented in this application, however the application should be easily extensible to support other compression methods.
 
+![program_image](user_doc/hm_window.png)
+
 Requirements
 -------------------
 At least Java 8 is required to run this program.
